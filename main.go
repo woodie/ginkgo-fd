@@ -3,26 +3,25 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
 )
 
-// Minimal types matching Ginkgo's JSON report schema.
-
-type Report struct {
+type SuiteReport struct {
 	SuiteName   string       `json:"SuiteName"`
 	RunTime     float64      `json:"RunTime"`
-	SpecReports []SpecReport `json:"SpecReports"`
+	SpecReports []SpecResult `json:"SpecReports"`
 }
 
-type SpecReport struct {
-	ContainerHierarchyTexts []string  `json:"ContainerHierarchyTexts"`
-	LeafNodeText            string    `json:"LeafNodeText"`
-	LeafNodeType            string    `json:"LeafNodeType"`
-	State                   string    `json:"State"`
-	RunTime                 float64   `json:"RunTime"`
-	Failure                 *Failure  `json:"Failure,omitempty"`
+type SpecResult struct {
+	ContainerHierarchyTexts []string `json:"ContainerHierarchyTexts"`
+	LeafNodeText            string   `json:"LeafNodeText"`
+	LeafNodeType            string   `json:"LeafNodeType"`
+	State                   string   `json:"State"`
+	RunTime                 float64  `json:"RunTime"`
+	Failure                 *Failure `json:"Failure,omitempty"`
 }
 
 type Failure struct {
@@ -43,14 +42,13 @@ func formatDuration(ns float64) string {
 	return fmt.Sprintf("%.2f seconds", d.Seconds())
 }
 
-func run(reportPath string) error {
+func run(reportPath string, out io.Writer) error {
 	data, err := os.ReadFile(reportPath)
 	if err != nil {
 		return fmt.Errorf("cannot read %s: %w", reportPath, err)
 	}
 
-	// Ginkgo writes an array of Report (one per suite).
-	var reports []Report
+	var reports []SuiteReport
 	if err := json.Unmarshal(data, &reports); err != nil {
 		return fmt.Errorf("cannot parse JSON: %w", err)
 	}
@@ -63,10 +61,9 @@ func run(reportPath string) error {
 	var failures []failureEntry
 
 	for _, report := range reports {
-		fmt.Println(report.SuiteName)
+		fmt.Fprintln(out, report.SuiteName)
 		totalRunTime += report.RunTime
 
-		// Track the last printed hierarchy to avoid repeating shared prefixes.
 		var prevHierarchy []string
 
 		for _, spec := range report.SpecReports {
@@ -84,7 +81,6 @@ func run(reportPath string) error {
 				totalSkipped++
 			}
 
-			// Print any new levels of container hierarchy.
 			hierarchy := spec.ContainerHierarchyTexts
 			divergeAt := 0
 			for divergeAt < len(prevHierarchy) && divergeAt < len(hierarchy) &&
@@ -92,10 +88,9 @@ func run(reportPath string) error {
 				divergeAt++
 			}
 			for i := divergeAt; i < len(hierarchy); i++ {
-				fmt.Printf("%s%s\n", strings.Repeat("  ", i+1), hierarchy[i])
+				fmt.Fprintf(out, "%s%s\n", strings.Repeat("  ", i+1), hierarchy[i])
 			}
 
-			// Print the It text with state annotation.
 			depth := len(hierarchy) + 1
 			indent := strings.Repeat("  ", depth)
 			label := spec.LeafNodeText
@@ -114,28 +109,26 @@ func run(reportPath string) error {
 			case "skipped":
 				label = fmt.Sprintf("%s (SKIPPED)", label)
 			}
-			fmt.Printf("%s%s\n", indent, label)
+			fmt.Fprintf(out, "%s%s\n", indent, label)
 
 			prevHierarchy = hierarchy
 		}
-		fmt.Println()
+		fmt.Fprintln(out)
 	}
 
-	// Failures section.
 	if len(failures) > 0 {
-		fmt.Println("Failures:")
+		fmt.Fprintln(out, "Failures:")
 		for _, f := range failures {
-			fmt.Printf("\n  %d) %s\n", f.n, strings.Join(f.full, " "))
+			fmt.Fprintf(out, "\n  %d) %s\n", f.n, strings.Join(f.full, " "))
 			for _, line := range strings.Split(strings.TrimSpace(f.message), "\n") {
-				fmt.Printf("     %s\n", line)
+				fmt.Fprintf(out, "     %s\n", line)
 			}
-			fmt.Printf("     # %s\n", f.location)
+			fmt.Fprintf(out, "     # %s\n", f.location)
 		}
-		fmt.Println()
+		fmt.Fprintln(out)
 	}
 
-	// Summary line.
-	fmt.Printf("Finished in %s\n", formatDuration(totalRunTime))
+	fmt.Fprintf(out, "Finished in %s\n", formatDuration(totalRunTime))
 	parts := []string{fmt.Sprintf("%d examples", totalSpecs)}
 	if totalFailed > 0 {
 		parts = append(parts, fmt.Sprintf("%d failure", totalFailed))
@@ -148,13 +141,12 @@ func run(reportPath string) error {
 	if totalSkipped > 0 {
 		parts = append(parts, fmt.Sprintf("%d skipped", totalSkipped))
 	}
-	fmt.Println(strings.Join(parts, ", "))
+	fmt.Fprintln(out, strings.Join(parts, ", "))
 
-	// Failed examples list.
 	if len(failures) > 0 {
-		fmt.Println("\nFailed examples:")
+		fmt.Fprintln(out, "\nFailed examples:")
 		for _, f := range failures {
-			fmt.Printf("\n  # %s\n", strings.Join(f.full, " "))
+			fmt.Fprintf(out, "\n  # %s\n", strings.Join(f.full, " "))
 		}
 	}
 
@@ -173,7 +165,7 @@ func main() {
 	if len(os.Args) > 1 {
 		path = os.Args[1]
 	}
-	if err := run(path); err != nil {
+	if err := run(path, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "ginkgo-fd: %v\n", err)
 		os.Exit(1)
 	}
