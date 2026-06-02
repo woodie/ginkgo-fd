@@ -1,6 +1,6 @@
 # ginkgo-fd
 
-Formats Ginkgo JSON reports in the style of RSpec's `--format documentation` output, with color support.
+Formats [Ginkgo](https://github.com/onsi/ginkgo) JSON reports in the style of RSpec's `--format documentation` output, with color support.
 
 ## Installation
 
@@ -17,14 +17,18 @@ sudo mv ginkgo-fd /usr/local/bin/
 
 ## Usage
 
-```
-ginkgo --json-report=report.json && ginkgo-fd
-```
-
-Or with a custom path:
+Run as a wrapper around `ginkgo`, passing any arguments through:
 
 ```
-ginkgo --json-report=report.json && ginkgo-fd report.json
+ginkgo-fd
+ginkgo-fd ./...
+ginkgo-fd -v ./mypackage
+```
+
+Or format an existing report file directly:
+
+```
+ginkgo-fd report.json
 ```
 
 Sample output:
@@ -46,6 +50,6 @@ GinkgoFd
     when the report file is missing
       returns an error
 
-Finished in 0.0060 seconds
+Finished in 0.0043 seconds
 10 examples, 0 failures
 ```

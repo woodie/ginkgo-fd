@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -190,14 +192,49 @@ type failureEntry struct {
 	location string
 }
 
-func main() {
-	path := "report.json"
-	if len(os.Args) > 1 {
-		path = os.Args[1]
+func runGinkgo(args []string) int {
+	reportPath := filepath.Join(os.TempDir(), "ginkgo-fd-report.json")
+	defer os.Remove(reportPath)
+
+	ginkgoArgs := append([]string{"--json-report=" + reportPath}, args...)
+	cmd := exec.Command("ginkgo", ginkgoArgs...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	if err := cmd.Run(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			// ginkgo failed (e.g. test failures) — still format the report
+			if _, statErr := os.Stat(reportPath); statErr == nil {
+				fmt.Fprintln(os.Stdout)
+				run(reportPath, os.Stdout)
+			}
+			return exitErr.ExitCode()
+		}
+		fmt.Fprintf(os.Stderr, "ginkgo-fd: %v\n", err)
+		return 1
 	}
 
-	if err := run(path, os.Stdout); err != nil {
+	fmt.Fprintln(os.Stdout)
+	if err := run(reportPath, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "ginkgo-fd: %v\n", err)
-		os.Exit(1)
+		return 1
 	}
+	return 0
+}
+
+func main() {
+	args := os.Args[1:]
+
+	// A single .json argument — format it directly.
+	if len(args) == 1 && strings.HasSuffix(args[0], ".json") {
+		if err := run(args[0], os.Stdout); err != nil {
+			fmt.Fprintf(os.Stderr, "ginkgo-fd: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	// Everything else (including no args) runs ginkgo as a wrapper.
+	os.Exit(runGinkgo(args))
 }
