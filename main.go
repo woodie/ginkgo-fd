@@ -70,8 +70,8 @@ func run(reportPath string, out io.Writer) error {
 			if spec.LeafNodeType != "It" {
 				continue
 			}
-			totalSpecs++
 
+			totalSpecs++
 			switch spec.State {
 			case "failed", "panicked", "interrupted":
 				totalFailed++
@@ -87,13 +87,15 @@ func run(reportPath string, out io.Writer) error {
 				prevHierarchy[divergeAt] == hierarchy[divergeAt] {
 				divergeAt++
 			}
+
 			for i := divergeAt; i < len(hierarchy); i++ {
-				fmt.Fprintf(out, "%s%s\n", strings.Repeat("  ", i+1), hierarchy[i])
+				fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", i), hierarchy[i])
 			}
 
-			depth := len(hierarchy) + 1
-			indent := strings.Repeat("  ", depth)
+			depth := len(hierarchy)
+			indent := strings.Repeat(" ", depth)
 			label := spec.LeafNodeText
+
 			switch spec.State {
 			case "failed", "panicked":
 				n := len(failures) + 1
@@ -109,10 +111,11 @@ func run(reportPath string, out io.Writer) error {
 			case "skipped":
 				label = fmt.Sprintf("%s (SKIPPED)", label)
 			}
-			fmt.Fprintf(out, "%s%s\n", indent, label)
 
+			fmt.Fprintf(out, "%s%s\n", indent, label)
 			prevHierarchy = hierarchy
 		}
+
 		fmt.Fprintln(out)
 	}
 
@@ -129,6 +132,7 @@ func run(reportPath string, out io.Writer) error {
 	}
 
 	fmt.Fprintf(out, "Finished in %s\n", formatDuration(totalRunTime))
+
 	parts := []string{fmt.Sprintf("%d examples", totalSpecs)}
 	if totalFailed > 0 {
 		parts = append(parts, fmt.Sprintf("%d failure", totalFailed))
@@ -165,6 +169,7 @@ func main() {
 	if len(os.Args) > 1 {
 		path = os.Args[1]
 	}
+
 	if err := run(path, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "ginkgo-fd: %v\n", err)
 		os.Exit(1)
