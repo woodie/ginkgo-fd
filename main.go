@@ -7,6 +7,23 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"golang.org/x/term"
+)
+
+var isTTY = term.IsTerminal(int(os.Stdout.Fd()))
+
+func colorize(code, s string) string {
+	if !isTTY {
+		return s
+	}
+	return "\033[" + code + "m" + s + "\033[0m"
+}
+
+const (
+	green  = "32"
+	red    = "31"
+	yellow = "33"
 )
 
 type SuiteReport struct {
@@ -100,6 +117,7 @@ func run(reportPath string, out io.Writer) error {
 			case "failed", "panicked":
 				n := len(failures) + 1
 				label = fmt.Sprintf("%s (FAILED - %d)", label, n)
+				label = colorize(red, label)
 				failures = append(failures, failureEntry{
 					n:        n,
 					full:     append(append([]string{report.SuiteName}, hierarchy...), spec.LeafNodeText),
@@ -107,9 +125,11 @@ func run(reportPath string, out io.Writer) error {
 					location: fmt.Sprintf("%s:%d", spec.Failure.Location.FileName, spec.Failure.Location.LineNumber),
 				})
 			case "pending":
-				label = fmt.Sprintf("%s (PENDING)", label)
+				label = colorize(yellow, fmt.Sprintf("%s (PENDING)", label))
 			case "skipped":
-				label = fmt.Sprintf("%s (SKIPPED)", label)
+				label = colorize(yellow, fmt.Sprintf("%s (SKIPPED)", label))
+			default:
+				label = colorize(green, label)
 			}
 
 			fmt.Fprintf(out, "%s%s\n", indent, label)
@@ -145,7 +165,13 @@ func run(reportPath string, out io.Writer) error {
 	if totalSkipped > 0 {
 		parts = append(parts, fmt.Sprintf("%d skipped", totalSkipped))
 	}
-	fmt.Fprintln(out, strings.Join(parts, ", "))
+	summary := strings.Join(parts, ", ")
+	if totalFailed > 0 {
+		summary = colorize(red, summary)
+	} else {
+		summary = colorize(green, summary)
+	}
+	fmt.Fprintln(out, summary)
 
 	if len(failures) > 0 {
 		fmt.Fprintln(out, "\nFailed examples:")
