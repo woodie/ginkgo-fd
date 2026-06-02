@@ -89,11 +89,11 @@ func run(reportPath string, out io.Writer) error {
 			}
 
 			for i := divergeAt; i < len(hierarchy); i++ {
-				fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", i), hierarchy[i])
+				fmt.Fprintf(out, "%s%s\n", strings.Repeat("  ", i), hierarchy[i])
 			}
 
 			depth := len(hierarchy)
-			indent := strings.Repeat(" ", depth)
+			indent := strings.Repeat("  ", depth)
 			label := spec.LeafNodeText
 
 			switch spec.State {
