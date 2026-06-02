@@ -49,7 +49,21 @@ GinkgoFd
       prints the summary with failure count
     when the report file is missing
       returns an error
+  color output
+    when not a TTY
+      omits ANSI codes from passing leaf nodes
+      omits ANSI codes from the summary
+    when a TTY
+      colors passing leaf nodes green
+      colors the passing summary green
+      colors failed leaf nodes red
+      colors the failing summary red
+  main routing
+    when a .json argument is given
+      formats the report file directly
+    when runGinkgo writes a report
+      uses a path outside the project directory
 
-Finished in 0.0043 seconds
-10 examples, 0 failures
+Finished in 0.0078 seconds
+18 examples, 0 failures
 ```
