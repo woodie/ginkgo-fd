@@ -1,6 +1,6 @@
 # ginkgo-fd
 
-Formats [Ginkgo](https://github.com/onsi/ginkgo) JSON reports in the style of RSpec's `--format documentation` output, with color support.
+The `ginko-fd` command uses [Ginkgo](https://github.com/onsi/ginkgo) under the hood to emulate the style of [RSpec](https://github.com/rspec/rspec) "format documentation" output.
 
 ## Installation
 
