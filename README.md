@@ -30,7 +30,18 @@ ginkgo --json-report=report.json && ginkgo-fd
 Sample output:
 
 ```
-Ginkgo ran 1 suite in 2.710928042s
+Running Suite: GinkgoFd Suite - /Users/woodie/workspace/ginkgo-fd
+=================================================================
+Random Seed: 1780386104
+
+Will run 10 of 10 specs
+••••••••••
+
+Ran 10 of 10 Specs in 0.007 seconds
+SUCCESS! -- 10 Passed | 0 Failed | 0 Pending | 0 Skipped
+PASS
+
+Ginkgo ran 1 suite in 2.724026083s
 Test Suite Passed
 
   GinkgoFd
@@ -49,6 +60,6 @@ Test Suite Passed
       when the report file is missing
         returns an error
 
-Finished in 0.0060 seconds
+Finished in 0.0067 seconds
 10 examples, 0 failures
 ```
