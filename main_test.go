@@ -1,14 +1,14 @@
 package main
 
 import (
-    "strings"
+	"strings"
 
-    . "github.com/onsi/ginkgo/v2"
-    . "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var passingReport = `[{
-    "SuiteName": "Lambada",
+    "SuiteName": "Something",
     "RunTime": 15000000,
     "SpecReports": [
         {
@@ -33,7 +33,7 @@ var passingReport = `[{
 }]`
 
 var failingReport = `[{
-    "SuiteName": "Lambada",
+    "SuiteName": "Something",
     "RunTime": 15000000,
     "SpecReports": [
         {
@@ -51,61 +51,61 @@ var failingReport = `[{
 
 var _ = Describe("GinkgoFd", func() {
 
-    runReport := func(raw string) string {
-        path := writeTempReport(raw)
-        var buf strings.Builder
-        Expect(run(path, &buf)).To(Succeed())
-        return buf.String()
-    }
+	runReport := func(raw string) string {
+		path := writeTempReport(raw)
+		var buf strings.Builder
+		Expect(run(path, &buf)).To(Succeed())
+		return buf.String()
+	}
 
-    Describe("run", func() {
-        Context("with a passing report", func() {
-            var output string
-            BeforeEach(func() { output = runReport(passingReport) })
+	Describe("run", func() {
+		var output string
 
-            It("prints the suite name", func() {
-                Expect(output).To(ContainSubstring("Lambada"))
-            })
-            It("indents container hierarchy", func() {
-                Expect(output).To(ContainSubstring("  checkAttachmentDir"))
-                Expect(output).To(ContainSubstring("    when the path is missing"))
-            })
-            It("indents leaf nodes", func() {
-                Expect(output).To(ContainSubstring("      creates the directory"))
-            })
-            It("deduplicates shared hierarchy", func() {
-                Expect(strings.Count(output, "when the path is missing")).To(Equal(1))
-            })
-            It("prints the summary", func() {
-                Expect(output).To(ContainSubstring("3 examples, 0 failures"))
-            })
-        })
+		Context("with a passing report", func() {
+			BeforeEach(func() { output = runReport(passingReport) })
 
-        Context("with a failing report", func() {
-            var output string
-            BeforeEach(func() { output = runReport(failingReport) })
+			It("prints the suite name", func() {
+				Expect(output).To(ContainSubstring("Something"))
+			})
+			It("indents container hierarchy", func() {
+				Expect(output).To(ContainSubstring("checkAttachmentDir"))
+				Expect(output).To(ContainSubstring("when the path is missing"))
+			})
+			It("indents leaf nodes", func() {
+				Expect(output).To(ContainSubstring("creates the directory"))
+			})
+			It("deduplicates shared hierarchy", func() {
+				Expect(strings.Count(output, "when the path is missing")).To(Equal(1))
+			})
+			It("prints the summary", func() {
+				Expect(output).To(ContainSubstring("3 examples, 0 failures"))
+			})
+		})
 
-            It("annotates the failed spec", func() {
-                Expect(output).To(ContainSubstring("creates the directory (FAILED - 1)"))
-            })
-            It("prints the failures section", func() {
-                Expect(output).To(ContainSubstring("Failures:"))
-                Expect(output).To(ContainSubstring("Expected file to exist"))
-                Expect(output).To(ContainSubstring("main_test.go:42"))
-            })
-            It("prints the failed examples list", func() {
-                Expect(output).To(ContainSubstring("Failed examples:"))
-            })
-            It("prints the summary with failure count", func() {
-                Expect(output).To(ContainSubstring("1 examples, 1 failure"))
-            })
-        })
+		Context("with a failing report", func() {
+			BeforeEach(func() { output = runReport(failingReport) })
 
-        Context("when the report file is missing", func() {
-            It("returns an error", func() {
-                var buf strings.Builder
-                Expect(run("/nonexistent/report.json", &buf)).To(HaveOccurred())
-            })
-        })
-    })
+			It("annotates the failed spec", func() {
+				Expect(output).To(ContainSubstring("creates the directory (FAILED - 1)"))
+			})
+			It("prints the failures section", func() {
+				Expect(output).To(ContainSubstring("Failures:"))
+				Expect(output).To(ContainSubstring("Expected file to exist"))
+				Expect(output).To(ContainSubstring("main_test.go:42"))
+			})
+			It("prints the failed examples list", func() {
+				Expect(output).To(ContainSubstring("Failed examples:"))
+			})
+			It("prints the summary with failure count", func() {
+				Expect(output).To(ContainSubstring("1 examples, 1 failure"))
+			})
+		})
+
+		Context("when the report file is missing", func() {
+			It("returns an error", func() {
+				var buf strings.Builder
+				Expect(run("/nonexistent/report.json", &buf)).To(HaveOccurred())
+			})
+		})
+	})
 })
