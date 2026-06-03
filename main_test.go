@@ -50,6 +50,19 @@ var failingReport = `[{
   ]
 }]`
 
+var skippingReport = `[{
+  "SuiteName": "Something",
+  "RunTime": 15000000,
+  "SpecReports": [
+    {
+      "ContainerHierarchyTexts": ["checkAttachmentDir", "when the path is missing"],
+      "LeafNodeText": "creates the directory",
+      "LeafNodeType": "It",
+      "State": "skipped"
+    }
+  ]
+}]`
+
 var _ = Describe("GinkgoFd", func() {
 	runReport := func(raw string) string {
 		path := writeTempReport(raw)
@@ -107,6 +120,18 @@ var _ = Describe("GinkgoFd", func() {
 			})
 		})
 
+		Context("with a skipping report", func() {
+			BeforeEach(func() { output = runReport(skippingReport) })
+
+			It("annotates the skipped spec", func() {
+				Expect(output).To(ContainSubstring("creates the directory (SKIPPED)"))
+			})
+
+			It("prints the summary with skipped count", func() {
+				Expect(output).To(ContainSubstring("1 examples, 0 failures, 1 skipped"))
+			})
+		})
+
 		Context("when the report file is missing", func() {
 			It("returns an error", func() {
 				var buf strings.Builder
@@ -147,6 +172,10 @@ var _ = Describe("GinkgoFd", func() {
 
 			It("colors the failing summary red", func() {
 				Expect(runReport(failingReport)).To(ContainSubstring(red))
+			})
+
+			It("colors skipped leaf nodes yellow", func() {
+				Expect(runReport(skippingReport)).To(ContainSubstring(yellow))
 			})
 		})
 	})
