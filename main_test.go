@@ -134,19 +134,19 @@ var _ = Describe("GinkgoFd", func() {
 			AfterEach(func() { isTTY = false })
 
 			It("colors passing leaf nodes green", func() {
-				Expect(runReport(passingReport)).To(ContainSubstring("\033[32m"))
+				Expect(runReport(passingReport)).To(ContainSubstring(green))
 			})
 
 			It("colors the passing summary green", func() {
-				Expect(runReport(passingReport)).To(ContainSubstring("\033[32m"))
+				Expect(runReport(passingReport)).To(ContainSubstring(green))
 			})
 
 			It("colors failed leaf nodes red", func() {
-				Expect(runReport(failingReport)).To(ContainSubstring("\033[31m"))
+				Expect(runReport(failingReport)).To(ContainSubstring(red))
 			})
 
 			It("colors the failing summary red", func() {
-				Expect(runReport(failingReport)).To(ContainSubstring("\033[31m"))
+				Expect(runReport(failingReport)).To(ContainSubstring(red))
 			})
 		})
 	})

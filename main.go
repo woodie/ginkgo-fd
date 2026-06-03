@@ -19,13 +19,13 @@ func colorize(code, s string) string {
 	if !isTTY {
 		return s
 	}
-	return "\033[" + code + "m" + s + "\033[0m"
+	return code + s + "\033[0m"
 }
 
 const (
-	green  = "32"
-	red    = "31"
-	yellow = "33"
+	red    = "\033[31m"
+	green  = "\033[32m"
+	yellow = "\033[33m"
 )
 
 type SuiteReport struct {
