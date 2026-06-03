@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 
 	. "github.com/onsi/ginkgo/v2"
 )
@@ -15,8 +14,4 @@ func writeTempReport(content string) string {
 	defer f.Close()
 	f.WriteString(content)
 	return f.Name()
-}
-
-func ginkgoReportPath() string {
-	return filepath.Join(os.TempDir(), "ginkgo-fd-report.json")
 }

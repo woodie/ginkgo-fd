@@ -174,8 +174,8 @@ var _ = Describe("GinkgoFd", func() {
 				Expect(runReport(failingReport)).To(ContainSubstring(red))
 			})
 
-			It("colors skipped leaf nodes yellow", func() {
-				Expect(runReport(skippingReport)).To(ContainSubstring(yellow))
+			It("colors skipped leaf nodes cyan", func() {
+				Expect(runReport(skippingReport)).To(ContainSubstring(cyan))
 			})
 		})
 	})

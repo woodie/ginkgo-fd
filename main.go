@@ -19,13 +19,14 @@ func colorize(code, s string) string {
 	if !isTTY {
 		return s
 	}
-	return code + s + "\033[0m"
+	return "\033[" + code + "m" + s + "\033[0m"
 }
 
 const (
-	red    = "\033[31m"
-	green  = "\033[32m"
-	yellow = "\033[33m"
+	red    = "31"
+	green  = "32"
+	yellow = "33"
+	cyan   = "36"
 )
 
 type SuiteReport struct {
@@ -129,7 +130,7 @@ func run(reportPath string, out io.Writer) error {
 			case "pending":
 				label = colorize(yellow, fmt.Sprintf("%s (PENDING)", label))
 			case "skipped":
-				label = colorize(yellow, fmt.Sprintf("%s (SKIPPED)", label))
+				label = colorize(cyan, fmt.Sprintf("%s (SKIPPED)", label))
 			default:
 				label = colorize(green, label)
 			}
@@ -192,8 +193,12 @@ type failureEntry struct {
 	location string
 }
 
+func ginkgoReportPath() string {
+	return filepath.Join(os.TempDir(), "ginkgo-fd-report.json")
+}
+
 func runGinkgo(args []string) int {
-	reportPath := filepath.Join(os.TempDir(), "ginkgo-fd-report.json")
+	reportPath := ginkgoReportPath()
 	defer os.Remove(reportPath)
 
 	ginkgoArgs := append([]string{"--json-report=" + reportPath}, args...)
@@ -204,7 +209,6 @@ func runGinkgo(args []string) int {
 
 	if err := cmd.Run(); err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
-			// ginkgo failed (e.g. test failures) — still format the report
 			if _, statErr := os.Stat(reportPath); statErr == nil {
 				fmt.Fprintln(os.Stdout)
 				run(reportPath, os.Stdout)
@@ -226,7 +230,6 @@ func runGinkgo(args []string) int {
 func main() {
 	args := os.Args[1:]
 
-	// A single .json argument — format it directly.
 	if len(args) == 1 && strings.HasSuffix(args[0], ".json") {
 		if err := run(args[0], os.Stdout); err != nil {
 			fmt.Fprintf(os.Stderr, "ginkgo-fd: %v\n", err)
@@ -235,6 +238,5 @@ func main() {
 		return
 	}
 
-	// Everything else (including no args) runs ginkgo as a wrapper.
 	os.Exit(runGinkgo(args))
 }
