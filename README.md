@@ -47,6 +47,9 @@ GinkgoFd
       prints the failures section
       prints the failed examples list
       prints the summary with failure count
+    with a skipping report
+      annotates the skipped spec
+      prints the summary with skipped count
     when the report file is missing
       returns an error
   color output
@@ -58,12 +61,13 @@ GinkgoFd
       colors the passing summary green
       colors failed leaf nodes red
       colors the failing summary red
+      colors skipped leaf nodes cyan
   main routing
     when a .json argument is given
       formats the report file directly
     when runGinkgo writes a report
       uses a path outside the project directory
 
-Finished in 0.0078 seconds
-18 examples, 0 failures
+Finished in 0.0101 seconds
+21 examples, 0 failures
 ```
