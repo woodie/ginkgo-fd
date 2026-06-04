@@ -194,20 +194,24 @@ type failureEntry struct {
 }
 
 func ginkgoReportPath() string {
-	return filepath.Join(os.TempDir(), "ginkgo-fd-report.json")
+	return filepath.Join("/tmp", "ginkgo-fd-report.json")
 }
 
 func runGinkgo(args []string) int {
+	reportFile := "ginkgo-fd-report.json"
 	reportPath := ginkgoReportPath()
 	defer os.Remove(reportPath)
 
-	ginkgoArgs := append([]string{"--json-report=" + reportPath}, args...)
+	ginkgoArgs := append([]string{"--json-report=" + reportFile}, args...)
 	cmd := exec.Command("ginkgo", ginkgoArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 
-	if err := cmd.Run(); err != nil {
+	err := cmd.Run()
+	os.Rename(reportFile, reportPath)
+
+	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			if _, statErr := os.Stat(reportPath); statErr == nil {
 				fmt.Fprintln(os.Stdout)

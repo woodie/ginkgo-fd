@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"strings"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -192,7 +191,7 @@ var _ = Describe("GinkgoFd", func() {
 
 		Context("when runGinkgo writes a report", func() {
 			It("uses a path outside the project directory", func() {
-				Expect(ginkgoReportPath()).To(HavePrefix(os.TempDir()))
+				Expect(ginkgoReportPath()).To(HavePrefix("/tmp"))
 			})
 		})
 	})
