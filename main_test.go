@@ -140,16 +140,17 @@ var _ = Describe("GinkgoFd", func() {
 	})
 
 	Describe("color output", func() {
+        var prefix = "\033["
 		Context("when not a TTY", func() {
 			BeforeEach(func() { isTTY = false })
 			AfterEach(func() { isTTY = false })
 
 			It("omits ANSI codes from passing leaf nodes", func() {
-				Expect(runReport(passingReport)).NotTo(ContainSubstring("\033["))
+				Expect(runReport(passingReport)).NotTo(ContainSubstring(prefix))
 			})
 
 			It("omits ANSI codes from the summary", func() {
-				Expect(runReport(failingReport)).NotTo(ContainSubstring("\033["))
+				Expect(runReport(failingReport)).NotTo(ContainSubstring(prefix))
 			})
 		})
 
@@ -158,23 +159,23 @@ var _ = Describe("GinkgoFd", func() {
 			AfterEach(func() { isTTY = false })
 
 			It("colors passing leaf nodes green", func() {
-				Expect(runReport(passingReport)).To(ContainSubstring(green))
+				Expect(runReport(passingReport)).To(ContainSubstring(prefix + green))
 			})
 
 			It("colors the passing summary green", func() {
-				Expect(runReport(passingReport)).To(ContainSubstring(green))
+				Expect(runReport(passingReport)).To(ContainSubstring(prefix + green))
 			})
 
 			It("colors failed leaf nodes red", func() {
-				Expect(runReport(failingReport)).To(ContainSubstring(red))
+				Expect(runReport(failingReport)).To(ContainSubstring(prefix + red))
 			})
 
 			It("colors the failing summary red", func() {
-				Expect(runReport(failingReport)).To(ContainSubstring(red))
+				Expect(runReport(failingReport)).To(ContainSubstring(prefix + red))
 			})
 
 			It("colors skipped leaf nodes cyan", func() {
-				Expect(runReport(skippingReport)).To(ContainSubstring(cyan))
+				Expect(runReport(skippingReport)).To(ContainSubstring(prefix + cyan))
 			})
 		})
 	})
