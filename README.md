@@ -11,6 +11,7 @@ go install github.com/woodie/ginkgo-fd@latest
 Or build locally:
 
 ```
+go mod tidy
 go build -o ginkgo-fd
 sudo mv ginkgo-fd /usr/local/bin/
 ```
