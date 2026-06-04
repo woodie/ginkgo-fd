@@ -76,4 +76,7 @@ GinkgoFd
       formats the report file directly
     when runGinkgo writes a report
       uses a path outside the project directory
+
+Finished in 0.0086 seconds
+21 examples, 0 failures
 ```
