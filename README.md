@@ -4,6 +4,14 @@ The `ginko-fd` command uses [Ginkgo](https://github.com/onsi/ginkgo) under the h
 
 ## Installation
 
+Install Ginkgo if you haven't already:
+
+```
+go install github.com/onsi/ginkgo/v2/ginkgo@latest
+```
+
+Then install ginkgo-fd:
+
 ```
 go install github.com/woodie/ginkgo-fd@latest
 ```
