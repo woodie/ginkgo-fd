@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var passingReport = `[{
+const passingReport = `[{
   "SuiteName": "Something",
   "RunTime": 15000000,
   "SpecReports": [
@@ -32,7 +32,7 @@ var passingReport = `[{
   ]
 }]`
 
-var failingReport = `[{
+const failingReport = `[{
   "SuiteName": "Something",
   "RunTime": 15000000,
   "SpecReports": [
@@ -49,7 +49,7 @@ var failingReport = `[{
   ]
 }]`
 
-var skippingReport = `[{
+const skippingReport = `[{
   "SuiteName": "Something",
   "RunTime": 15000000,
   "SpecReports": [
