@@ -13,7 +13,7 @@ Or build locally:
 ```
 go mod tidy
 go build -o ginkgo-fd
-sudo mv ginkgo-fd /usr/local/bin/
+mv ginkgo-fd ~/go/bin/
 ```
 
 ## Usage
