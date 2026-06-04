@@ -140,7 +140,6 @@ var _ = Describe("GinkgoFd", func() {
 	})
 
 	Describe("color output", func() {
-        var prefix = "\033["
 		Context("when not a TTY", func() {
 			BeforeEach(func() { isTTY = false })
 			AfterEach(func() { isTTY = false })

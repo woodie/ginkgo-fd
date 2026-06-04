@@ -19,10 +19,11 @@ func colorize(code, s string) string {
 	if !isTTY {
 		return s
 	}
-	return "\033[" + code + "m" + s + "\033[0m"
+	return prefix + code + "m" + s + prefix + "0m"
 }
 
 const (
+	prefix = "\033["
 	red    = "31"
 	green  = "32"
 	yellow = "33"
