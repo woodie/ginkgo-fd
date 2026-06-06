@@ -195,7 +195,7 @@ type failureEntry struct {
 }
 
 func ginkgoReportPath() string {
-	return filepath.Join("/tmp", "ginkgo-fd-report.json")
+	return filepath.Join(os.TempDir(), "ginkgo-fd-report.json")
 }
 
 func runGinkgo(args []string) int {
