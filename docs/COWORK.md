@@ -1,5 +1,7 @@
 # Working with ginkgo-fd (and ginkgo)
 
+Cross-project conventions (git locks, sandbox toolchain) are in `~/workspace/woodie/docs/COWORK.md`.
+
 `ginkgo-fd` started as a standalone wrapper: a small Go CLI that shells out to
 `ginkgo`, captures its JSON report output, and reformats it as RSpec-style
 "format documentation" — nested `Describe`/`Context`/`It` text instead of dots.
